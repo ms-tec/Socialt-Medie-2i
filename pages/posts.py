@@ -4,7 +4,9 @@ from dominate.tags import *
 
 from sanic import Sanic
 
-def show_posts(app_name, posts=[]):
+import pages.userprofile as userprofile
+
+def show_posts(app_name, posts=[], user=None):
     app = Sanic.get_app(app_name)
     doc = dominate.document(title=f'{app_name} | Posts')
 
@@ -22,6 +24,8 @@ def show_posts(app_name, posts=[]):
                     a('Log ud', cls='button post_button', href='/logout')
                 with li(cls='menu_item'):
                     a('Ny post', cls='button post_button', href='/write')
+            if user is not None:
+                userprofile.user_profile(user)
             for display_post in posts:
                 with div(cls='post'):
                     h1(display_post.post.title)
@@ -52,7 +56,7 @@ def create_page(app_name):
                     a('Forside', cls='button post_button', href='/')
                 with li(cls='menu_item'):
                     a('Log ud', cls='button post_button', href='/logout')
-            with form(cls='post_form', method='POST', action='/post'):
+            with form(cls='post-form', method='POST', action='/post'):
                 with div(cls='post'):
                     input_(type='text', cls='title_inp',
                            name='title',

@@ -18,6 +18,7 @@ from auth import protected, new_token, del_token
 
 # pages
 import pages.posts as posts
+import pages.userprofile as profile
 
 app = Sanic(config.APP_NAME)
 app.static('static/', 'static')
@@ -36,11 +37,45 @@ async def index_page(request):
     all_posts = postDAO.fetch_all_display()
     return html(posts.show_posts(config.APP_NAME, all_posts))
 
+@app.get("/profile")
+@protected
+async def edit_profile(request):
+    user = userDAO.get_user(request.ctx.username)
+    return html(profile.edit_profile(config.APP_NAME, user))
+
+@app.post("/update_profile")
+@protected
+async def update_profile(request):
+    user = userDAO.get_user(request.ctx.username)
+    print(request.form)
+    print(request.files)
+
+    if('profile-icon' in request.files and
+       request.files['profile-icon'] and
+       request.files['profile-icon'][0].body):
+        iconfile = request.files['profile-icon'][0]
+        userid = userDAO.get_user_id(user.username)
+        img_path = f'images/icons/{userid}.png'
+        fname = f'static/{img_path}'
+        with open(fname, 'wb') as f:
+            f.write(iconfile.body)
+        user.img_path = app.url_for('static',
+                                    name='static',
+                                    filename=img_path)
+
+    if('description' in request.form and request.form['description']):
+        desc = request.form['description'][0]
+        user.desc = desc
+
+    userDAO.update(user)
+    return redirect("/profile")
+
 @app.get("/u/<username>")
 @protected
 async def user_page(request, username: str):
+    user = userDAO.get_user(username)
     all_posts = postDAO.fetch_by_user(unquote(username))
-    return html(posts.show_posts(config.APP_NAME, all_posts))
+    return html(posts.show_posts(config.APP_NAME, all_posts, user=user))
 
 @app.get("/write")
 @protected

@@ -11,6 +11,9 @@ class DAO:
 
     def _store_sql(self):
         raise NotImplementedError()
+    
+    def _update_sql(self):
+        raise NotImplementedError()
 
     def _data(self, obj):
         raise NotImplementedError()
@@ -20,6 +23,10 @@ class DAO:
 
     def store(self, obj):
         self.cursor.execute(self._store_sql(), self._data(obj))
+        self.conn.commit()
+    
+    def update(self, obj):
+        self.cursor.execute(self._update_sql(), self._data(obj))
         self.conn.commit()
 
     def fetch_all(self):

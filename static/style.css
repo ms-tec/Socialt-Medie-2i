@@ -48,3 +48,12 @@ a.button {
 .menu_item {
     display: inline-block;
 }
+
+#profile-info {
+    overflow: hidden;
+}
+
+#profile-info img {
+    max-width: 200px;
+    max-height: 200px;
+}
