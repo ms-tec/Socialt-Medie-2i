@@ -5,6 +5,7 @@ from dominate.tags import *
 from sanic import Sanic
 
 import pages.userprofile as userprofile
+from pages.menu import show_menu
 
 def show_posts(app_name, posts=[], user=None):
     app = Sanic.get_app(app_name)
@@ -17,13 +18,13 @@ def show_posts(app_name, posts=[], user=None):
 
     with doc:
         with div(id='contents'):
-            with ul(cls='menu'):
-                with li(cls='menu_item'):
-                    a('Forside', cls='button post_button', href='/')
-                with li(cls='menu_item'):
-                    a('Log ud', cls='button post_button', href='/logout')
-                with li(cls='menu_item'):
-                    a('Ny post', cls='button post_button', href='/write')
+            menu_items = [
+                ('Forside', '/'),
+                ('Log ud', '/logout'),
+                ('Ny post', '/write'),
+                ('Rediger profil', '/profile')
+            ]
+            show_menu(menu_items)
             if user is not None:
                 userprofile.user_profile(user)
             for display_post in posts:
@@ -51,11 +52,12 @@ def create_page(app_name):
 
     with doc:
         with div(id='contents'):
-            with ul(cls='menu'):
-                with li(cls='menu_item'):
-                    a('Forside', cls='button post_button', href='/')
-                with li(cls='menu_item'):
-                    a('Log ud', cls='button post_button', href='/logout')
+            menu_items = [
+                ('Forside', '/'),
+                ('Log ud', '/logout'),
+                ('Rediger profil', '/profile')
+            ]
+            show_menu(menu_items)
             with form(cls='post-form', method='POST', action='/post'):
                 with div(cls='post'):
                     input_(type='text', cls='title_inp',

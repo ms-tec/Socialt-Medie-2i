@@ -3,6 +3,8 @@ from dominate.tags import *
 
 from sanic import Sanic
 
+from pages.menu import show_menu
+
 def user_profile(user):
     """Helper function for displaying profile info."""
     with div(id='profile-info'):
@@ -22,13 +24,12 @@ def edit_profile(app_name, user):
     
     with doc:
         with div(id='contents'):
-            with ul(cls='menu'):
-                with li(cls='menu_item'):
-                    a('Forside', cls='button post_button', href='/')
-                with li(cls='menu_item'):
-                    a('Log ud', cls='button post_button', href='/logout')
-                with li(cls='menu_item'):
-                    a('Ny post', cls='button post_button', href='/write')
+            menu_items = [
+                ('Forside', '/'),
+                ('Log ud', '/logout'),
+                ('Ny post', '/write'),
+            ]
+            show_menu(menu_items)
             with form(cls='profile-form', enctype="multipart/form-data", method='POST', action='/update_profile'):
                 with div(id='profile-info'):
                     h1(f'{user.username} - rediger profil')
