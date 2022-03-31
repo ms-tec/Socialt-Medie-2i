@@ -37,7 +37,6 @@ def show_posts(posts=[], user=None):
                         a(f'af: {display_post.author.username}',
                           href=f'/u/{quote(display_post.author.username)}',
                           cls='author_link')
-                    print(display_post.post.title)
                     if isinstance(display_post.post, post.TextPost): # text post
                         with div():
                             lines = filter(bool, display_post.post.contents.splitlines())
