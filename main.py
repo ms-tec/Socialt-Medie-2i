@@ -9,7 +9,6 @@ import datetime
 import config
 
 # DAOs
-from dao import DAO
 import user
 import post
 
@@ -34,18 +33,49 @@ postDAO.create_table()
 @app.get("/")
 @protected
 async def index_page(request):
+    """Display all posts."""
     all_posts = postDAO.fetch_all_display()
     return html(posts.show_posts(all_posts))
+
+@app.get("/u/<username>")
+@protected
+async def user_page(request, username: str):
+    """Display all posts from the given user."""
+    user = userDAO.get_user(username)
+    all_posts = postDAO.fetch_by_user(unquote(username))
+    return html(posts.show_posts(all_posts, user=user))
+
+@app.get("/write")
+@protected
+async def write_page(request):
+    """Let user write a new text post."""
+    return html(posts.create_page())
+
+@app.get("/upload")
+@protected
+async def write_page(request):
+    """Let user create a new image post."""
+    return html(posts.create_image_page())
 
 @app.get("/profile")
 @protected
 async def edit_profile(request):
+    """Let user see and edit their own profile page."""
     user = userDAO.get_user(request.ctx.username)
     return html(profile.edit_profile(user))
+
+@app.get("/logout")
+@protected
+async def logout(request):
+    """Log the user out."""
+    del_token(request.ctx.username)
+    logger.info(f"Logged out: {request.ctx.username}")
+    return redirect("/")
 
 @app.post("/update_profile")
 @protected
 async def update_profile(request):
+    """Receive and save updated profile information."""
     user = userDAO.get_user(request.ctx.username)
     print(request.form)
     print(request.files)
@@ -70,26 +100,10 @@ async def update_profile(request):
     userDAO.update(user)
     return redirect("/profile")
 
-@app.get("/u/<username>")
-@protected
-async def user_page(request, username: str):
-    user = userDAO.get_user(username)
-    all_posts = postDAO.fetch_by_user(unquote(username))
-    return html(posts.show_posts(all_posts, user=user))
-
-@app.get("/write")
-@protected
-async def write_page(request):
-    return html(posts.create_page())
-
-@app.get("/upload")
-@protected
-async def write_page(request):
-    return html(posts.create_image_page())
-
 @app.post("/post/text")
 @protected
 async def make_post(request):
+    """Receive and store new text post."""
     if not ('title' in request.form and
             request.form['title']):
         return redirect("/write")
@@ -108,6 +122,7 @@ async def make_post(request):
 @app.post("/post/image")
 @protected
 async def make_img_post(request):
+    """Receive and store new image post."""
     if not ('title' in request.form and
             request.form['title']):
         print("MISSING TITLE")
@@ -135,6 +150,7 @@ async def make_img_post(request):
 
 @app.post("/login")
 async def login(request):
+    """Log user in, then redirect to front page."""
     if not ('uname' in request.form and
             'pword' in request.form and
             request.form['uname']   and
@@ -162,15 +178,9 @@ async def login(request):
                                       datetime.timedelta(days=1)
     return resp
 
-@app.get("/logout")
-@protected
-async def logout(request):
-    del_token(request.ctx.username)
-    logger.info(f"Logged out: {request.ctx.username}")
-    return redirect("/")
-
 @app.post("/register")
 async def register(request):
+    """Create a new user, then log them in."""
     if not ('uname'  in request.form and
             'pword'  in request.form and
             'rpword' in request.form and
