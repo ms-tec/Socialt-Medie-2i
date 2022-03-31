@@ -5,7 +5,6 @@ from base64 import b64encode
 import os
 
 from pages.login import login_page
-import config
 
 tokens = {}
 
@@ -38,7 +37,7 @@ def protected(wrapped):
                 response = await f(request, *args, **kwargs)
                 return response
             else:
-                return html(login_page(config.APP_NAME), 401)
+                return html(login_page(), 401)
 
         return decorated_function
 

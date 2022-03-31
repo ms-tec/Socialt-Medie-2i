@@ -2,12 +2,21 @@ from dao import DAO
 import user
 
 class Post:
-    def __init__(self, user_id, title, contents, created, last_edit = None) -> None:
+    def __init__(self, user_id, title, created, last_edit = None) -> None:
         self.user_id = user_id
         self.title = title
-        self.contents = contents
         self.created = created
         self.last_edit = last_edit or created
+
+class ImagePost(Post):
+    def __init__(self, user_id, title, created, image_id, last_edit=None) -> None:
+        super().__init__(user_id, title, created, last_edit)
+        self.image_id = image_id
+
+class TextPost(Post):
+    def __init__(self, user_id, title, created, contents, last_edit=None) -> None:
+        super().__init__(user_id, title, created, last_edit)
+        self.contents = contents
 
 class PostDisplayInfo:
     def __init__(self, post: Post, author: user.User) -> None:
@@ -19,15 +28,18 @@ class PostDAO(DAO):
         return 'posts'
 
     def _data(self, post: Post):
-        return (post.user_id, post.title, post.contents, post.created, post.last_edit)
+        if isinstance(post, ImagePost):
+            return (post.user_id, 0, post.title, None, post.created, post.last_edit)
+        else: # post is a TextPost
+            return (post.user_id, 1, post.title, post.contents, post.created, post.last_edit)
 
     def _store_sql(self):
         return f'''INSERT INTO {self._get_table_name()}
-                    VALUES (:author, :title, :contents, :created, :edited)'''
+                    VALUES (:author, :post_type, :title, :contents, :created, :edited)'''
 
     def create_table(self):
         sql = f'''CREATE TABLE IF NOT EXISTS {self._get_table_name()}
-                        (author int, title text, contents text,
+                        (author int, post_type int, title text, contents text,
                          created date, edited date)'''
         self.cursor.execute(sql)
 
@@ -37,12 +49,14 @@ class PostDAO(DAO):
         for entry in self.cursor.execute(f'''SELECT rowid, * FROM {tname}
                                              ORDER BY created DESC'''):
             entries.append(entry)
-        return list(map(lambda tup: Post(tup[1],
-                                         tup[2],
-                                         tup[3],
-                                         tup[4],
-                                         tup[5]),
-                        entries))
+
+        def mkPost(tup):
+            if tup[2] == 0: # image post
+                return ImagePost(tup[1], tup[3], tup[5], tup[0], tup[6])
+            else: # text post
+                return TextPost(tup[1], tup[3], tup[5], tup[4], tup[6])
+
+        return list(map(mkPost, entries))
 
     def fetch_all_display(self):
         posts = self.fetch_all()
@@ -61,10 +75,12 @@ class PostDAO(DAO):
                          {user_table}.key,
                          {user_table}.salt,
                          {post_table}.author,
+                         {post_table}.post_type,
                          {post_table}.title,
                          {post_table}.created,
                          {post_table}.edited,
-                         {post_table}.contents
+                         {post_table}.contents,
+                         {post_table}.rowid
                   FROM {user_table} INNER JOIN {post_table}
                   ON {user_table}.rowid = {post_table}.author
                   WHERE {user_table}.username = :username
@@ -76,11 +92,18 @@ class PostDAO(DAO):
             key = row[1]
             salt = row[2]
             author_id = row[3]
-            title = row[4]
-            created = row[5]
-            edited = row[6]
-            contents = row[7]
-            dposts.append(PostDisplayInfo(
-                            Post(author_id, title, contents, created, edited),
-                            user.User(username, key, salt)))
+            post_type = row[4]
+            title = row[5]
+            created = row[6]
+            edited = row[7]
+            contents = row[8]
+            image_id = row[9]
+            if post_type == 0: # image post
+                dposts.append(PostDisplayInfo(
+                    ImagePost(author_id, title, created, image_id, edited),
+                    user.User(username, key, salt)))
+            else: # text post
+                dposts.append(PostDisplayInfo(
+                    TextPost(author_id, title, created, contents, edited),
+                    user.User(username, key, salt)))
         return dposts

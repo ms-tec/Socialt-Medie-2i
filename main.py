@@ -35,13 +35,13 @@ postDAO.create_table()
 @protected
 async def index_page(request):
     all_posts = postDAO.fetch_all_display()
-    return html(posts.show_posts(config.APP_NAME, all_posts))
+    return html(posts.show_posts(all_posts))
 
 @app.get("/profile")
 @protected
 async def edit_profile(request):
     user = userDAO.get_user(request.ctx.username)
-    return html(profile.edit_profile(config.APP_NAME, user))
+    return html(profile.edit_profile(user))
 
 @app.post("/update_profile")
 @protected
@@ -75,14 +75,19 @@ async def update_profile(request):
 async def user_page(request, username: str):
     user = userDAO.get_user(username)
     all_posts = postDAO.fetch_by_user(unquote(username))
-    return html(posts.show_posts(config.APP_NAME, all_posts, user=user))
+    return html(posts.show_posts(all_posts, user=user))
 
 @app.get("/write")
 @protected
 async def write_page(request):
-    return html(posts.create_page(config.APP_NAME))
+    return html(posts.create_page())
 
-@app.post("/post")
+@app.get("/upload")
+@protected
+async def write_page(request):
+    return html(posts.create_image_page())
+
+@app.post("/post/text")
 @protected
 async def make_post(request):
     if not ('title' in request.form and
@@ -94,12 +99,38 @@ async def make_post(request):
     if 'contents' in request.form and request.form['contents']:
         contents = request.form['contents'][0]
 
-    print(contents)
+    usrid = userDAO.get_user_id(request.ctx.username)
+
+    pst = post.TextPost(usrid, title, datetime.datetime.utcnow(), contents)
+    postDAO.store(pst)
+    return redirect("/")
+
+@app.post("/post/image")
+@protected
+async def make_img_post(request):
+    if not ('title' in request.form and
+            request.form['title']):
+        print("MISSING TITLE")
+        return redirect("/upload")
+
+    if not ('image' in request.files and
+            request.files['image'] and
+            request.files['image'][0].body):
+        return redirect("/upload")
+    
+    title = request.form['title'][0]
+    img = request.files['image'][0]
 
     usrid = userDAO.get_user_id(request.ctx.username)
 
-    pst = post.Post(usrid, title, contents, datetime.datetime.utcnow())
+    pst = post.ImagePost(usrid, title, datetime.datetime.utcnow(), None)
     postDAO.store(pst)
+    img_id = postDAO.cursor.lastrowid
+
+    fname = f'static/images/posts/{img_id}.png'
+    with open(fname, 'wb') as f:
+        f.write(img.body)
+
     return redirect("/")
 
 @app.post("/login")

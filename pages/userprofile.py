@@ -2,6 +2,7 @@ import dominate
 from dominate.tags import *
 
 from sanic import Sanic
+from config import APP_NAME
 
 from pages.menu import show_menu
 
@@ -12,10 +13,10 @@ def user_profile(user):
         img(src=user.img_path)
         p(user.desc)
 
-def edit_profile(app_name, user):
+def edit_profile(user):
     """Full page for editing a user profile."""
-    app = Sanic.get_app(app_name)
-    doc = dominate.document(title=f'{app_name} | Rediger profil')
+    app = Sanic.get_app(APP_NAME)
+    doc = dominate.document(title=f'{APP_NAME} | Rediger profil')
 
     with doc.head:
         link(rel='stylesheet', href=app.url_for('static',
@@ -28,16 +29,17 @@ def edit_profile(app_name, user):
                 ('Forside', '/'),
                 ('Log ud', '/logout'),
                 ('Ny post', '/write'),
+                ('Nyt billede', '/upload'),
             ]
             show_menu(menu_items)
-            with form(cls='profile-form', enctype="multipart/form-data", method='POST', action='/update_profile'):
+            with form(cls='profile-form', enctype='multipart/form-data', method='POST', action='/update_profile'):
                 with div(id='profile-info'):
                     h1(f'{user.username} - rediger profil')
                     img(src=user.img_path)
                     label('Vælg profilbillede:', for_='profile-icon')
                     input_(type='file',
                            name='profile-icon',
-                           accept="image/png, image/jpg")
+                           accept='image/png')
                     textarea(user.desc,
                              cls='desc-inpt',
                              name='description',

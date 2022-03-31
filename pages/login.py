@@ -2,11 +2,11 @@ import dominate
 from dominate.tags import *
 
 from sanic import Sanic
+from config import APP_NAME
 
-
-def login_page(app_name):
-    app = Sanic.get_app(app_name)
-    doc = dominate.document(title=f'{app_name} | Login')
+def login_page():
+    app = Sanic.get_app(APP_NAME)
+    doc = dominate.document(title=f'{APP_NAME} | Login')
 
     with doc.head:
         link(rel='stylesheet', href=app.url_for('static',
