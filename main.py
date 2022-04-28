@@ -135,6 +135,8 @@ async def make_img_post(request):
     
     title = request.form['title'][0]
     img = request.files['image'][0]
+    # MIME-type: img.type, fx 'image/png'
+    # To use this, we need to store the file name in the db
 
     usrid = userDAO.get_user_id(request.ctx.username)
 
