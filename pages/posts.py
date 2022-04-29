@@ -7,7 +7,7 @@ from config import APP_NAME
 
 import pages.userprofile as userprofile
 from pages.menu import show_menu
-import post
+import database.post as post
 
 def show_posts(posts=[], user=None):
     app = Sanic.get_app(APP_NAME)
@@ -59,21 +59,20 @@ def create_image_page():
                                                 filename='style.css'))
 
     with doc:
-        with div(id='contents'):
-            menu_items = [
-                ('Forside', '/'),
-                ('Log ud', '/logout'),
-                ('Ny post', '/write'),
-                ('Rediger profil', '/profile')
-            ]
-            show_menu(menu_items)
-            with form(cls='post-form', enctype='multipart/form-data', method='POST', action='/post/image'):
-                with div(cls='post'):
-                    input_(type='text', cls='title_inp',
-                           name='title',
-                           placeholder='Indtast titel...')
-                    input_(type='file', name='image', accept='image/png')
-                input_(type='submit', value='Post', cls='button')
+        menu_items = [
+            ('Forside', '/'),
+            ('Log ud', '/logout'),
+            ('Ny post', '/write'),
+            ('Rediger profil', '/profile')
+        ]
+        show_menu(menu_items)
+        with form(cls='post-form', enctype='multipart/form-data', method='POST', action='/post/image'):
+            with div(cls='post'):
+                input_(type='text', cls='title_inp',
+                        name='title',
+                        placeholder='Indtast titel...')
+                input_(type='file', name='image', accept='image/png')
+            input_(type='submit', value='Post', cls='button')
 
     return doc.render()
 
@@ -87,22 +86,21 @@ def create_page():
                                                 filename='style.css'))
 
     with doc:
-        with div(id='contents'):
-            menu_items = [
-                ('Forside', '/'),
-                ('Log ud', '/logout'),
-                ('Nyt billede', '/upload'),
-                ('Rediger profil', '/profile')
-            ]
-            show_menu(menu_items)
-            with form(cls='post-form', method='POST', action='/post/text'):
-                with div(cls='post'):
-                    input_(type='text', cls='title_inp',
-                           name='title',
-                           placeholder='Indtast titel...')
-                    textarea(cls='contents_inp',
-                             name='contents',
-                             placeholder='Indtast tekst...')
-                input_(type='submit', value='Post', cls='button')
+        menu_items = [
+            ('Forside', '/'),
+            ('Log ud', '/logout'),
+            ('Nyt billede', '/upload'),
+            ('Rediger profil', '/profile')
+        ]
+        show_menu(menu_items)
+        with form(cls='post-form', method='POST', action='/post/text'):
+            with div(cls='post'):
+                input_(type='text', cls='title_inp',
+                        name='title',
+                        placeholder='Indtast titel...')
+                textarea(cls='contents_inp',
+                            name='contents',
+                            placeholder='Indtast tekst...')
+            input_(type='submit', value='Post', cls='button')
 
     return doc.render()

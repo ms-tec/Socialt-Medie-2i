@@ -1,5 +1,5 @@
-from dao import DAO
-import user
+from database.dao import DAO
+import database.user as user
 
 class Post:
     def __init__(self, user_id, title, created, last_edit = None) -> None:

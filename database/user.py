@@ -1,6 +1,6 @@
 import os
 import hashlib
-from dao import DAO
+from database.dao import DAO
 
 from sanic import Sanic
 import config

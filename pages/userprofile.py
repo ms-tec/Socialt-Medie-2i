@@ -24,26 +24,25 @@ def edit_profile(user):
                                                 filename='style.css'))
     
     with doc:
-        with div(id='contents'):
-            menu_items = [
-                ('Forside', '/'),
-                ('Log ud', '/logout'),
-                ('Ny post', '/write'),
-                ('Nyt billede', '/upload'),
-            ]
-            show_menu(menu_items)
-            with form(cls='profile-form', enctype='multipart/form-data', method='POST', action='/update_profile'):
-                with div(id='profile-info'):
-                    h1(f'{user.username} - rediger profil')
-                    img(src=user.img_path)
-                    label('Vælg profilbillede:', for_='profile-icon')
-                    input_(type='file',
-                           name='profile-icon',
-                           accept='image/png')
-                    textarea(user.desc,
-                             cls='desc-inpt',
-                             name='description',
-                             placeholder='Indtast beskrivelse...')
-                    input_(type='submit', value='Gem', cls='button')
+        menu_items = [
+            ('Forside', '/'),
+            ('Log ud', '/logout'),
+            ('Ny post', '/write'),
+            ('Nyt billede', '/upload'),
+        ]
+        show_menu(menu_items)
+        with form(cls='profile-form', enctype='multipart/form-data', method='POST', action='/update_profile'):
+            with div(id='profile-info'):
+                h1(f'{user.username} - rediger profil')
+                img(src=user.img_path)
+                label('Vælg profilbillede:', for_='profile-icon')
+                input_(type='file',
+                        name='profile-icon',
+                        accept='image/png')
+                textarea(user.desc,
+                            cls='desc-inpt',
+                            name='description',
+                            placeholder='Indtast beskrivelse...')
+                input_(type='submit', value='Gem', cls='button')
 
     return doc.render()
