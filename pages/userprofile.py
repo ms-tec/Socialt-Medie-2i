@@ -38,7 +38,7 @@ def edit_profile(user):
                 label('Vælg profilbillede:', for_='profile-icon')
                 input_(type='file',
                         name='profile-icon',
-                        accept='image/png')
+                        accept='image/*')
                 textarea(user.desc,
                             cls='desc-inpt',
                             name='description',

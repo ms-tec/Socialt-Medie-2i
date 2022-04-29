@@ -29,7 +29,7 @@ class PostDAO(DAO):
 
     def _data(self, post: Post):
         if isinstance(post, ImagePost):
-            return (post.user_id, 0, post.title, None, post.created, post.last_edit)
+            return (post.user_id, 0, post.title, post.image_path, post.created, post.last_edit)
         else: # post is a TextPost
             return (post.user_id, 1, post.title, post.contents, post.created, post.last_edit)
 
@@ -52,7 +52,7 @@ class PostDAO(DAO):
 
         def mkPost(tup):
             if tup[2] == 0: # image post
-                return ImagePost(tup[1], tup[3], tup[5], tup[0], tup[6])
+                return ImagePost(tup[1], tup[3], tup[5], tup[4], tup[6])
             else: # text post
                 return TextPost(tup[1], tup[3], tup[5], tup[4], tup[6])
 
@@ -79,8 +79,7 @@ class PostDAO(DAO):
                          {post_table}.title,
                          {post_table}.created,
                          {post_table}.edited,
-                         {post_table}.contents,
-                         {post_table}.rowid
+                         {post_table}.contents
                   FROM {user_table} INNER JOIN {post_table}
                   ON {user_table}.rowid = {post_table}.author
                   WHERE {user_table}.username = :username
@@ -97,10 +96,9 @@ class PostDAO(DAO):
             created = row[6]
             edited = row[7]
             contents = row[8]
-            image_id = row[9]
             if post_type == 0: # image post
                 dposts.append(PostDisplayInfo(
-                    ImagePost(author_id, title, created, image_id, edited),
+                    ImagePost(author_id, title, created, contents, edited),
                     user.User(username, key, salt)))
             else: # text post
                 dposts.append(PostDisplayInfo(

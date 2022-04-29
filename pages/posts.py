@@ -71,7 +71,7 @@ def create_image_page():
                 input_(type='text', cls='title_inp',
                         name='title',
                         placeholder='Indtast titel...')
-                input_(type='file', name='image', accept='image/png')
+                input_(type='file', name='image', accept='image/*')
             input_(type='submit', value='Post', cls='button')
 
     return doc.render()

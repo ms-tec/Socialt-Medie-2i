@@ -3,6 +3,8 @@ from sanic import Sanic
 from sanic.log import logger
 from sanic.response import html, redirect
 
+import uuid
+
 import datetime
 
 # global configuration
@@ -84,8 +86,9 @@ async def update_profile(request):
        request.files['profile-icon'] and
        request.files['profile-icon'][0].body):
         iconfile = request.files['profile-icon'][0]
+        imgtype = iconfile.type[6:]
         userid = userDAO.get_user_id(user.username)
-        img_path = f'images/icons/{userid}.png'
+        img_path = f'images/icons/{userid}.{imgtype}'
         fname = f'static/{img_path}'
         with open(fname, 'wb') as f:
             f.write(iconfile.body)
@@ -135,16 +138,15 @@ async def make_img_post(request):
     
     title = request.form['title'][0]
     img = request.files['image'][0]
-    # MIME-type: img.type, fx 'image/png'
-    # To use this, we need to store the file name in the db
+    imgtype = img.type[6:]
 
     usrid = userDAO.get_user_id(request.ctx.username)
 
-    pst = post.ImagePost(usrid, title, datetime.datetime.utcnow(), None)
+    img_id = str(uuid.uuid4())
+    pst = post.ImagePost(usrid, title, datetime.datetime.utcnow(), f'{img_id}.{imgtype}')
     postDAO.store(pst)
-    img_id = postDAO.cursor.lastrowid
 
-    fname = f'static/images/posts/{img_id}.png'
+    fname = f'static/images/posts/{img_id}.{imgtype}'
     with open(fname, 'wb') as f:
         f.write(img.body)
 
