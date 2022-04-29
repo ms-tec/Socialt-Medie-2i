@@ -9,9 +9,9 @@ class Post:
         self.last_edit = last_edit or created
 
 class ImagePost(Post):
-    def __init__(self, user_id, title, created, image_id, last_edit=None) -> None:
+    def __init__(self, user_id, title, created, image_path, last_edit=None) -> None:
         super().__init__(user_id, title, created, last_edit)
-        self.image_id = image_id
+        self.image_path = image_path
 
 class TextPost(Post):
     def __init__(self, user_id, title, created, contents, last_edit=None) -> None:

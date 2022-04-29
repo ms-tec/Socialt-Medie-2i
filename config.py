@@ -1,2 +1,2 @@
 DB_NAME = 'some.db'
-APP_NAME = 'The Example Network'
+APP_NAME = 'TheExampleNetwork'
