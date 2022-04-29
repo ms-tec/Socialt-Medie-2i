@@ -9,8 +9,8 @@ import datetime
 import config
 
 # DAOs
-import user
-import post
+import database.user as user
+import database.post as post
 
 # auth
 from auth import protected, new_token, del_token
