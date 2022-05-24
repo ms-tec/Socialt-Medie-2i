@@ -16,37 +16,41 @@ def show_posts(posts=[], user=None):
     with doc.head:
         link(rel='stylesheet', href=app.url_for('static',
                                                 name='static',
-                                                filename='style.css'))
+                                                filename='frontpage.css'))
 
     with doc:
-        menu_items = [
-            ('Forside', '/'),
-            ('Log ud', '/logout'),
-            ('Ny post', '/write'),
-            ('Nyt billede', '/upload'),
-            ('Rediger profil', '/profile')
-        ]
-        show_menu(menu_items)
-        if user is not None:
-            userprofile.user_profile(user)
-        for display_post in posts:
-            with div(cls='post'):
-                h1(display_post.post.title)
-                with div(cls='author'):
-                    a(f'af: {display_post.author.username}',
-                        href=f'/u/{quote(display_post.author.username)}',
-                        cls='author_link')
-                if isinstance(display_post.post, post.TextPost): # text post
-                    with div():
-                        lines = filter(bool, display_post.post.contents.splitlines())
-                        for par in lines:
-                            p(par)
-                else: # image post
-                    with div():
-                        img(src=app.url_for('static',
-                                            name='static',
-                                            filename=f'images/posts/{display_post.post.image_path}'))
-
+        with div(cls="container"):
+            with div(cls="header"):
+                h1("Overskrift")
+            with div(cls="contents"):
+                if user is not None:
+                    userprofile.user_profile(user)
+                for display_post in posts:
+                    with div(cls='post'):
+                        h2(display_post.post.title)
+                        with div(cls='author'):
+                            a(f'af: {display_post.author.username}',
+                                href=f'/u/{quote(display_post.author.username)}',
+                                cls='author_link')
+                        if isinstance(display_post.post, post.TextPost): # text post
+                            with div():
+                                lines = filter(bool, display_post.post.contents.splitlines())
+                                for par in lines:
+                                    p(par)
+                        else: # image post
+                            with div():
+                                img(src=app.url_for('static',
+                                                    name='static',
+                                                    filename=f'images/posts/{display_post.post.image_path}'))
+            
+            menu_items = [
+                ('Forside', '/'),
+                ('Log ud', '/logout'),
+                ('Ny post', '/write'),
+                ('Nyt billede', '/upload'),
+                ('Rediger profil', '/profile')
+            ]
+            show_menu(menu_items)
     return doc.render()
 
 def create_image_page():
