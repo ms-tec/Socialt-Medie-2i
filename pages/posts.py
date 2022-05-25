@@ -60,23 +60,27 @@ def create_image_page():
     with doc.head:
         link(rel='stylesheet', href=app.url_for('static',
                                                 name='static',
-                                                filename='style.css'))
+                                                filename='frontpage.css'))
 
     with doc:
-        menu_items = [
-            ('Forside', '/'),
-            ('Log ud', '/logout'),
-            ('Ny post', '/write'),
-            ('Rediger profil', '/profile')
-        ]
-        show_menu(menu_items)
-        with form(cls='post-form', enctype='multipart/form-data', method='POST', action='/post/image'):
-            with div(cls='post'):
-                input_(type='text', cls='title_inp',
-                        name='title',
-                        placeholder='Indtast titel...')
-                input_(type='file', name='image', accept='image/*')
-            input_(type='submit', value='Post', cls='button')
+        with div(cls="container"):
+            with div(cls="header"):
+                h1("Overskrift")
+            with div(cls="contents"):
+                with form(cls='post-form', enctype='multipart/form-data', method='POST', action='/post/image'):
+                    with div(cls='post'):
+                        input_(type='text', cls='title_inp',
+                                name='title',
+                                placeholder='Indtast titel...')
+                        input_(type='file', name='image', accept='image/*')
+                    input_(type='submit', value='Post', cls='button')
+            menu_items = [
+                ('Forside', '/'),
+                ('Log ud', '/logout'),
+                ('Ny post', '/write'),
+                ('Rediger profil', '/profile')
+            ]
+            show_menu(menu_items)
 
     return doc.render()
 
